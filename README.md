@@ -24,4 +24,10 @@ Takeaways
 We hope this project will benefit the Wisconsin Department of Health Services (DHS) as well as Dane County residents. Throughout this process we collaborated with Margret Thelen at the Wisconsin DHS and Ryan Honeck from the Milwaukee DHS. 
 If we had more time to work on this project, I think there would be room to expand on both the literature review and statistical analysis. We ended up using 14 variables in our analysis compared to 20 or more variables for some of the other HVI analysis that we reviewed. Much of this was due to data availability, we were able to obtain hospital data from the DHS but there were several variables that we were not able to get access to, such as people in nursing homes for each census tract. Furthermore, using census blocks rather than census tracts may be optimal for this sort of analysis, but we learned this well over halfway through our project.
 
+Contributors
+-
+Joe Mahoney
+Lauren Wunderlich
+Ian Bohachek
+
 
