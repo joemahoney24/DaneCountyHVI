@@ -1,7 +1,7 @@
 Updating Dane County’s Heat Vulnerability Index
 -
 
-This project focuses on updating the Heat Vulnerability Index (HVI) for Dane County. Our process was organized into four distinct phases: conducting a literature review, gathering and cleaning data, performing Principal Component Analysis (PCA), and creating a thematic map of our findings.
+This project focuses on updating the Heat Vulnerability Index (HVI) for Dane County. Our process was organized into four distinct phases: conducting a literature review, gathering and cleaning data, performing Principal Component Analysis (PCA), and creating a thematic map of our findings. Capstone.rmd includes our code and a ShinyApp which deploys an interactive map of Dane County.
 
 
 Background
