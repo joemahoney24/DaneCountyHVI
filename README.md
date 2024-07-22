@@ -14,9 +14,10 @@ Data
 
 Data was gathered from various sources and categorized into three distinct categories:
 
-Demographic: Income status, education level, race etc.
-Environmental: Temperature, impervious surfaces, etc.
-Health-Related: Heat-related illness rates, obesity rates, etc.
+- Demographic: Income status, education level, race etc.
+- Environmental: Temperature, impervious surfaces, etc.
+- Health-Related: Heat-related illness rates, obesity rates, etc.
+
 The collected data was cleaned and preprocessed to ensure consistency and accuracy before analysis.
 
 Takeaways
