@@ -26,8 +26,9 @@ If we had more time to work on this project, I think there would be room to expa
 
 Contributors
 -
-Joe Mahoney
-Lauren Wunderlich
-Ian Bohachek
+
+- Joe Mahoney
+- Lauren Wunderlich
+- Ian Bohachek
 
 
