@@ -6,15 +6,20 @@ output:
 ---
 
 #Part 1: Data Collection + Format
-
 ```{r}
 library(tidyverse)
 library(dplyr)
 library(readxl)
+library(zoo)
 
+
+library(shiny)
+library(sf)
+library(leaflet)
+library(ggplot2)
+library(DT)
 
 poverty <- read_csv("Data/poverty/ACSST5Y2020.S1701-Data.csv")
-# popln <- read_csv("Data/popln/ACSDT5Y2020.B01003-Data.csv")
 age_race <- read_csv("Data/age_race/ACSDP5Y2020.DP05-Data.csv")
 education <- read_csv("Data/education/ACSST5Y2020.S1501-Data.csv")
 language <- read_csv("Data/language_spoken/ACSST5Y2020.S1601-Data.csv")
@@ -25,9 +30,12 @@ living_alone <- read_csv("Data/living_alone/ACSST5Y2020.S1101_2024-04-09T014526/
 ```{r}
 # remove first row, calcuate percentage, keep only relevant variables: 
 language <- language[-1, ]
-language <- language%>%
-  mutate(eng_less_than_well = 100*(as.integer(S1601_C05_001E) / as.integer(S1601_C01_001E)))%>%
-  select(GEO_ID, eng_less_than_well)
+# language <- language%>%
+#   mutate(eng_less_than_well = 100*(as.integer(S1601_C05_001E) / as.integer(S1601_C01_001E)))%>%
+#   select(GEO_ID, eng_less_than_well)
+language <- language %>%
+  mutate(eng_less_than_well = 100 * (as.integer(S1601_C05_001E) / as.integer(S1601_C01_001E))) %>%
+  dplyr::select(GEO_ID, eng_less_than_well)  # Using dplyr::select explicitly
 
 education <- education[-1, ]
 education <- education %>%
@@ -66,7 +74,6 @@ df2 <-left_join(age_race, poverty, by = c("GEO_ID"))
 df3 <- left_join(df2, language, by = c("GEO_ID"))
 df4 <- left_join(df3, education, by = c("GEO_ID"))
 df5 <- left_join(df4, living_alone, by = c("GEO_ID"))
-df5
 ```
 
 
@@ -94,7 +101,6 @@ cognitive <- cognitive%>%
 ```{r}
 hdf1 <- left_join(obesity, diabetes, by = join_by(Location))
 hdf2 <- left_join(cognitive, hdf1)
-hdf2
 ```
 ```{r}
 tracts_zips <- read_csv("Data/TractsWithZipCode.csv")%>%
@@ -105,7 +111,6 @@ hospitals <- read_excel("Data/Heat_Dane_2016_2022.xlsx")%>%
   select(`Zip Code`, Total)
 
 hospitals$`Zip Code` = as.numeric(hospitals$`Zip Code`)
-
 
 hosp <- left_join(tracts_zips, hospitals)%>%
   select(GEOID, Total)%>%
@@ -126,7 +131,6 @@ temp <- temp%>%
   select(GEOID, maxtemp_c)
 
 tdf <- left_join(temp, surf)
-tdf
 ```
 
 ```{r}
@@ -137,24 +141,19 @@ df5 <- df5%>%
   rename(GEOID = GEO_ID)
   
 df5$GEOID <- as.numeric(df5$GEOID)
-  
+
 hdf3 <- hdf3%>%
   rename(GEOID = Location)
 
 combined_df <- left_join(df5, hdf3)
 combined_df2 <- left_join(combined_df, tdf)
-
-combined_df2
 ```
 
 now statistical analysis: 
 
 ```{r}
 # replace missing data with mean for that coulumn
-library(zoo)
 df_full <- na.aggregate(combined_df2, FUN = mean)
-
-#write.csv(df_full, "df_full_hw4_4.30")
 ```
 
 # Part 2: Perform PCA on df_full
@@ -184,41 +183,32 @@ hvi <- cbind(metadata, norm_df)%>%
   select(GEOID, vulnerability_score)
 
 df_pca_rejoined <- cbind(metadata, df_pca)
-#write.csv(df_pca_rejoined, "df_hw4.csv")
-# write.csv(hvi, "hvi_updated4_21.csv")
-hvi
 ```
 
 ```{r}
 scores <- pca_rotated$values
-pca_rotated$Structure
-
-data <- data.frame(index = 1:length(scores), score = scores)
-
-
-plot <- ggplot(data, aes(x = index, y = score)) +
-  geom_point() +  # Add points
-  labs(x = "Component", y = "Eigenvalue") +  # Label axes
-  ggtitle("Scree Plot")  # Add a title
-plot
+# pca_rotated$Structure
+# 
+# data <- data.frame(index = 1:length(scores), score = scores)
+# 
+# 
+# plot <- ggplot(data, aes(x = index, y = score)) +
+#   geom_point() +  # Add points
+#   labs(x = "Component", y = "Eigenvalue") +  # Label axes
+#   ggtitle("Scree Plot")  # Add a title
+# plot
 #plot(pca_rotated$values)
 #ggsave("scree_plot.png", plot, width = 6, height = 4, dpi = 300)
 ```
 
 
 ```{r}
-knitr::opts_chunk$set(cache = FALSE, message = FALSE, warning = FALSE, echo = TRUE, eval = TRUE)
-library(ceramic)
-library(raster)
-library(sf)
-library(terra)
-library(tidyverse)
-library(tmap)
-theme_set(theme_minimal())
-
-# df_full
-# df_pca_rejoined
-# hvi
+# library(ceramic)
+# library(raster)
+# library(terra)
+# library(tidyverse)
+# library(tmap)
+# theme_set(theme_minimal())
 ```
 
 ```{r}
@@ -228,8 +218,8 @@ hw4_df <- left_join(dane_county, hvi, by = "GEOID")
 hw4_df2 <- left_join(hw4_df, df_full, by = "GEOID")
 hw4_df3 <- left_join(hw4_df2, df_pca_rejoined, by = "GEOID")
 
-tm_shape(hw4_df3)+
-   tm_polygons(col= "vulnerability_score")
+# tm_shape(hw4_df3)+
+#    tm_polygons(col= "vulnerability_score")
 
 
 dt_df <- left_join(hvi, df_full, by = "GEOID")
@@ -237,42 +227,39 @@ dt_df2 <- left_join(df_pca_rejoined, dt_df, by = "GEOID")
 ```
 
 ```{r}
-th <- theme_minimal() + 
-  theme(
-    panel.grid.minor = element_blank(),
-    panel.background = element_rect(fill = "#f7f7f7"),
-    panel.border = element_rect(fill = NA, color = "#0c0c0c"),
-    axis.text = element_text(size = 14),
-    axis.title = element_text(size = 16),
-    strip.text = element_text(size = 16),
-    legend.position = "bottom"
-  )
-theme_set(th)
-
+# th <- theme_minimal() + 
+#   theme(
+#     panel.grid.minor = element_blank(),
+#     panel.background = element_rect(fill = "#f7f7f7"),
+#     panel.border = element_rect(fill = NA, color = "#0c0c0c"),
+#     axis.text = element_text(size = 14),
+#     axis.title = element_text(size = 16),
+#     strip.text = element_text(size = 16),
+#     legend.position = "bottom"
+#   )
+# theme_set(th)
+# 
 df <- as.data.frame(pca_rotated$weights)
-df
-
+# df
+# 
 df_long <- df %>%
   rownames_to_column(var = "Variable") %>%
   pivot_longer(-Variable, names_to = "Component", values_to = "Value")
-
-
-# Plot using ggplot
-ggplot(df_long, aes(x = Value, y = Variable)) +
-  geom_col(position = "dodge", width = 0.6) +
-  facet_grid(~ Component)+
-  labs(x = "Variable", y = "Value", title = "Principal Components Visualization")
-  # theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
+# 
+# # Plot using ggplot
+# ggplot(df_long, aes(x = Value, y = Variable)) +
+#   geom_col(position = "dodge", width = 0.6) +
+#   facet_grid(~ Component)+
+#   labs(x = "Variable", y = "Value", title = "Principal Components Visualization")
 ```
 
 
 ```{r}
-library(shiny)
-library(sf)
-library(leaflet)
-library(ggplot2)
-library(DT)
+# library(shiny)
+# library(sf)
+# library(leaflet)
+# library(ggplot2)
+# library(DT)
 
 # Define color palette
 pal <- colorNumeric(
@@ -282,6 +269,11 @@ pal <- colorNumeric(
 
 ui <- fluidPage(
   titlePanel("Dane County Heat Vulnerability Index"),
+  fluidRow(
+    column(
+      width = 12,
+      uiOutput("info_text"))),
+
   fluidRow(
     column(
       width = 6,
@@ -302,6 +294,10 @@ ui <- fluidPage(
 
 # Define server logic
 server <- function(input, output) {
+  output$info_text <- renderUI({
+  HTML("Extreme heat is known to have negative impacts on human health in terms of morbidity and mortality. As temperatures continue to increase as a result of climate change, we can expect to see more extreme heat events. Many of the established risk factors for heat-related mortality disproportionately affect elderly populations, socially isolated individuals, and those with preexisting chronic conditions. This visualization attempts to display potential areas of highest risk to extreme heat in Dane County, with the ultimate goal of allowing for targeted public health interventions")
+})
+
   # Render map
   output$map <- renderLeaflet({
     leaflet() %>%
@@ -309,7 +305,12 @@ server <- function(input, output) {
       addPolygons(data = hw4_df3, fillColor = ~pal(hw4_df3$vulnerability_score), fillOpacity = 0.7,
                   color = "white", stroke = TRUE, weight = 1,
                   popup = paste("Census Tract: ", hw4_df3$GEOID, "<br>",
-                                "Vulnerability Score: ", hw4_df3$vulnerability_score))
+                                "Vulnerability Score: ", hw4_df3$vulnerability_score, "<br>",
+                                "PC1 Score: ", hw4_df3$RC1, "<br>",
+                                "PC2 Score: ", hw4_df3$RC2, "<br>",
+                                "PC3 Score: ", hw4_df3$RC3, "<br>",
+                                "PC4 Score: ", hw4_df3$RC4
+                                ))
   })
 
   # Render ggplot graph
@@ -321,7 +322,7 @@ server <- function(input, output) {
   })
   # Render data table
 output$data_table <- DT::renderDataTable({
-  datatable(dt_df2)})
+  datatable(hw4_df3)})
 }
 # Run the application
 shinyApp(ui = ui, server = server)
